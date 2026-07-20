@@ -41,6 +41,7 @@ function defaultState() {
     profile: { name: '', avatar: '' },
     theme: 'light',
     accent: 'rose',
+    customBg: '',
     tasks: [], // {id,date,title,time,priority,period,done}
     habitCategories: [],
     habits: [],
