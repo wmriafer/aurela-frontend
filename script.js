@@ -104,7 +104,7 @@ async function syncToServer() {
       state[key] = items;
     });
     await Promise.all(collectionSyncs);
-  await Api.syncSettings({ theme: state.theme, accent: state.accent, customBg: state.customBg, profile: state.profile });
+    await Api.syncSettings({ theme: state.theme, accent: state.accent, customBg: state.customBg, profile: state.profile });
     saveLocalCache();
   } catch (e) {
     console.error('Falha ao sincronizar com o servidor:', e.message);
@@ -1136,7 +1136,10 @@ function renderSettings() {
   $$('[data-theme-opt]').forEach(el => el.addEventListener('click', () => { state.theme = el.dataset.themeOpt; saveState(); applyTheme(); renderSettings(); }));
 
   $('#color-options').innerHTML = ACCENT_COLORS.map(c => `<div class="color-swatch${state.accent === c.id ? ' active' : ''}" style="background:${c.hex}" data-accent-opt="${c.id}" title="${c.label}"></div>`).join('');
- $('#custom-bg-input').value = state.customBg || '#FFF9FB';
+  $$('[data-accent-opt]').forEach(el => el.addEventListener('click', () => { state.accent = el.dataset.accentOpt; saveState(); applyTheme(); renderSettings(); }));
+
+  $('#custom-bg-input').value = state.customBg || '#FFF9FB';
+}
 $('#settings-name-input').addEventListener('input', e => { state.profile.name = e.target.value.trim(); saveState(); applyProfile(); });
 $('#settings-avatar-input').addEventListener('change', e => {
   const file = e.target.files[0];
