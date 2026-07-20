@@ -104,7 +104,7 @@ async function syncToServer() {
       state[key] = items;
     });
     await Promise.all(collectionSyncs);
-    await Api.syncSettings({ theme: state.theme, accent: state.accent, profile: state.profile });
+  await Api.syncSettings({ theme: state.theme, accent: state.accent, customBg: state.customBg, profile: state.profile });
     saveLocalCache();
   } catch (e) {
     console.error('Falha ao sincronizar com o servidor:', e.message);
@@ -201,6 +201,8 @@ $('#sidebar-overlay').addEventListener('click', closeMobileSidebar);
 function applyTheme() {
   document.body.dataset.theme = state.theme;
   document.body.dataset.accent = state.accent;
+  if (state.customBg) document.body.style.setProperty('--bg', state.customBg);
+  else document.body.style.removeProperty('--bg');
   $('#theme-icon').textContent = state.theme === 'dark' ? '☀' : '🌙';
   $('#theme-label').textContent = state.theme === 'dark' ? 'Modo claro' : 'Modo escuro';
   $('#mobile-theme-btn').textContent = state.theme === 'dark' ? '☀' : '🌙';
@@ -211,6 +213,18 @@ function toggleTheme() {
 }
 $('#theme-toggle').addEventListener('click', toggleTheme);
 $('#mobile-theme-btn').addEventListener('click', toggleTheme);
+
+$('#custom-bg-input').addEventListener('input', e => {
+  state.customBg = e.target.value;
+  saveState();
+  applyTheme();
+});
+$('#custom-bg-reset').addEventListener('click', () => {
+  state.customBg = '';
+  saveState();
+  applyTheme();
+  $('#custom-bg-input').value = '#FFF9FB';
+});
 
 function applyProfile() {
   $('#sidebar-username').textContent = state.profile.name || 'Minha conta';
@@ -1122,8 +1136,7 @@ function renderSettings() {
   $$('[data-theme-opt]').forEach(el => el.addEventListener('click', () => { state.theme = el.dataset.themeOpt; saveState(); applyTheme(); renderSettings(); }));
 
   $('#color-options').innerHTML = ACCENT_COLORS.map(c => `<div class="color-swatch${state.accent === c.id ? ' active' : ''}" style="background:${c.hex}" data-accent-opt="${c.id}" title="${c.label}"></div>`).join('');
-  $$('[data-accent-opt]').forEach(el => el.addEventListener('click', () => { state.accent = el.dataset.accentOpt; saveState(); applyTheme(); renderSettings(); }));
-}
+ $('#custom-bg-input').value = state.customBg || '#FFF9FB';
 $('#settings-name-input').addEventListener('input', e => { state.profile.name = e.target.value.trim(); saveState(); applyProfile(); });
 $('#settings-avatar-input').addEventListener('change', e => {
   const file = e.target.files[0];
