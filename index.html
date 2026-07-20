@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurela — seu planner online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ CONFIGURAÇÃO DA API ============ -->
+<script>
+  // Em produção, troque pela URL pública do seu back-end (ex: https://sua-api.onrender.com)
+  window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000';
+</script>
+
+<!-- ============ TELA DE AUTENTICAÇÃO ============ -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="brand-mark">✿</span>
+      <span class="brand-name">Aurela</span>
+    </div>
+    <p class="auth-tagline">Sua rotina, com leveza e beleza.</p>
+
+    <div class="segmented auth-tabs" id="auth-tabs">
+      <button class="segmented-btn active" data-auth-tab="login">Entrar</button>
+      <button class="segmented-btn" data-auth-tab="register">Criar conta</button>
+    </div>
+
+    <form id="login-form" class="auth-form">
+      <label class="field-label">E-mail</label>
+      <input class="input" type="email" id="login-email" placeholder="voce@email.com" required autocomplete="email">
+      <label class="field-label">Senha</label>
+      <input class="input" type="password" id="login-password" placeholder="Sua senha" required autocomplete="current-password">
+      <button type="button" class="auth-link" id="forgot-password-link">Esqueci minha senha</button>
+      <button type="submit" class="btn btn-primary auth-submit">Entrar</button>
+      <p class="auth-error" id="login-error"></p>
+    </form>
+
+    <form id="register-form" class="auth-form hidden">
+      <label class="field-label">Nome</label>
+      <input class="input" type="text" id="register-name" placeholder="Seu nome" required autocomplete="name">
+      <label class="field-label">E-mail</label>
+      <input class="input" type="email" id="register-email" placeholder="voce@email.com" required autocomplete="email">
+      <label class="field-label">Senha</label>
+      <input class="input" type="password" id="register-password" placeholder="Mínimo de 6 caracteres" required autocomplete="new-password" minlength="6">
+      <button type="submit" class="btn btn-primary auth-submit">Criar minha conta</button>
+      <p class="auth-error" id="register-error"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ============ TOAST CONTAINER ============ -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ============ PETAL CONFETTI LAYER ============ -->
+<div id="petal-layer" class="petal-layer" aria-hidden="true"></div>
+
+<!-- ============ MOBILE TOPBAR ============ -->
+<header class="mobile-topbar hidden" id="mobile-topbar">
+  <button id="mobile-menu-btn" class="icon-btn" aria-label="Abrir menu">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <span class="mobile-topbar-title">Aurela</span>
+  <button id="mobile-theme-btn" class="icon-btn" aria-label="Alternar tema">🌙</button>
+</header>
+
+<div class="app-shell hidden" id="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark">✿</span>
+      <span class="brand-name">Aurela</span>
+    </div>
+
+    <div class="profile-mini" data-nav="settings">
+      <img id="sidebar-avatar" class="avatar avatar-sm" src="" alt="Foto de perfil">
+      <div class="profile-mini-text">
+        <span id="sidebar-username" class="profile-mini-name">Minha conta</span>
+        <span class="profile-mini-sub">ver perfil</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav-menu">
+      <button class="nav-item active" data-nav="dashboard">
+        <span class="nav-icon">⌂</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-nav="daily">
+        <span class="nav-icon">☀</span><span>Planner Diário</span>
+      </button>
+      <button class="nav-item" data-nav="weekly">
+        <span class="nav-icon">▦</span><span>Planner Semanal</span>
+      </button>
+      <button class="nav-item" data-nav="monthly">
+        <span class="nav-icon">▤</span><span>Planner Mensal</span>
+      </button>
+      <button class="nav-item" data-nav="habits">
+        <span class="nav-icon">✓</span><span>Hábitos</span>
+      </button>
+      <button class="nav-item" data-nav="shopping">
+        <span class="nav-icon">♡</span><span>Lista de Compras</span>
+      </button>
+      <button class="nav-item" data-nav="goals">
+        <span class="nav-icon">✦</span><span>Metas</span>
+      </button>
+      <button class="nav-item" data-nav="studies">
+        <span class="nav-icon">✎</span><span>Estudos</span>
+      </button>
+      <button class="nav-item" data-nav="finances">
+        <span class="nav-icon">◈</span><span>Finanças</span>
+      </button>
+      <button class="nav-item" data-nav="notes">
+        <span class="nav-icon">✐</span><span>Notas</span>
+      </button>
+      <button class="nav-item" data-nav="settings">
+        <span class="nav-icon">⚙</span><span>Configurações</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="theme-toggle" class="theme-toggle">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-label">Modo escuro</span>
+      </button>
+      <button id="logout-btn" class="theme-toggle logout-btn">
+        <span>⎋</span>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ============ MAIN CONTENT ============ -->
+  <main class="main" id="main-content">
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="page active" id="page-dashboard" data-page="dashboard">
+      <div class="page-hero">
+        <div class="hero-text">
+          <p class="hero-eyebrow" id="hero-date">—</p>
+          <h1 class="hero-title" id="hero-greeting">Bem-vinda de volta ✿</h1>
+          <p class="hero-quote" id="hero-quote">Carregando frase do dia...</p>
+        </div>
+        <div class="hero-clock-card">
+          <span class="hero-clock" id="hero-clock">00:00</span>
+          <span class="hero-clock-label">agora</span>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-ring" id="ring-tasks"></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-tasks">0/0</span>
+            <span class="stat-label">tarefas de hoje</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ring" id="ring-habits"></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-habits">0/0</span>
+            <span class="stat-label">hábitos concluídos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">♡</span>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-shopping">0</span>
+            <span class="stat-label">compras pendentes</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">✦</span>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-goals">0</span>
+            <span class="stat-label">metas concluídas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card dash-calendar">
+          <div class="card-head">
+            <h3 id="mini-cal-title">—</h3>
+            <div class="card-head-actions">
+              <button class="icon-btn sm" id="mini-cal-prev">‹</button>
+              <button class="icon-btn sm" id="mini-cal-next">›</button>
+            </div>
+          </div>
+          <div class="mini-calendar" id="mini-calendar"></div>
+        </div>
+
+        <div class="card dash-summary">
+          <div class="card-head"><h3>Resumo do dia</h3></div>
+          <div id="dash-today-list" class="simple-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PLANNER DIÁRIO ================= -->
+    <section class="page" id="page-daily" data-page="daily">
+      <div class="page-head">
+        <div>
+          <h1>Planner Diário</h1>
+          <p class="page-sub" id="daily-date-label">—</p>
+        </div>
+        <div class="page-head-actions">
+          <input type="date" id="daily-date-picker" class="input date-input">
+          <button class="btn btn-primary" id="daily-add-btn">+ Nova tarefa</button>
+        </div>
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-bar"><div class="progress-bar-fill" id="daily-progress-fill"></div></div>
+        <span class="progress-label" id="daily-progress-label">0% concluído</span>
+      </div>
+
+      <div class="period-columns">
+        <div class="period-col" data-period="manha">
+          <h4 class="period-title">☀ Manhã</h4>
+          <div class="task-list" id="list-manha"></div>
+        </div>
+        <div class="period-col" data-period="tarde">
+          <h4 class="period-title">◐ Tarde</h4>
+          <div class="task-list" id="list-tarde"></div>
+        </div>
+        <div class="period-col" data-period="noite">
+          <h4 class="period-title">☾ Noite</h4>
+          <div class="task-list" id="list-noite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PLANNER SEMANAL ================= -->
+    <section class="page" id="page-weekly" data-page="weekly">
+      <div class="page-head">
+        <div>
+          <h1>Planner Semanal</h1>
+          <p class="page-sub" id="weekly-range-label">—</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="icon-btn" id="weekly-prev">‹</button>
+          <button class="btn btn-ghost" id="weekly-today">Hoje</button>
+          <button class="icon-btn" id="weekly-next">›</button>
+        </div>
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+    </section>
+
+    <!-- ================= PLANNER MENSAL ================= -->
+    <section class="page" id="page-monthly" data-page="monthly">
+      <div class="page-head">
+        <div>
+          <h1>Planner Mensal</h1>
+          <p class="page-sub" id="monthly-label">—</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="icon-btn" id="monthly-prev">‹</button>
+          <button class="btn btn-ghost" id="monthly-today">Hoje</button>
+          <button class="icon-btn" id="monthly-next">›</button>
+        </div>
+      </div>
+      <div class="month-weekdays" id="month-weekdays"></div>
+      <div class="month-grid" id="month-grid"></div>
+    </section>
+
+    <!-- ================= HÁBITOS ================= -->
+    <section class="page" id="page-habits" data-page="habits">
+      <div class="page-head">
+        <div>
+          <h1>Hábitos</h1>
+          <p class="page-sub">Pequenos passos, todos os dias</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" id="habits-category-btn">+ Categoria</button>
+          <button class="btn btn-primary" id="habits-add-btn">+ Novo hábito</button>
+        </div>
+      </div>
+
+      <div class="habit-stats-row" id="habit-stats-row"></div>
+      <div class="habits-list" id="habits-list"></div>
+    </section>
+
+    <!-- ================= LISTA DE COMPRAS ================= -->
+    <section class="page" id="page-shopping" data-page="shopping">
+      <div class="page-head">
+        <div>
+          <h1>Lista de Compras</h1>
+          <p class="page-sub">Tudo o que você quer, organizado com carinho</p>
+        </div>
+        <div class="page-head-actions">
+          <input class="input" id="shopping-search" placeholder="Pesquisar item...">
+          <button class="btn btn-ghost" id="shopping-category-btn">+ Categoria</button>
+          <button class="btn btn-primary" id="shopping-add-btn">+ Novo item</button>
+        </div>
+      </div>
+
+      <div id="shopping-categories"></div>
+
+      <div class="card shopping-purchased">
+        <div class="card-head collapsible" data-collapse="comprados">
+          <h3>✓ Comprados <span id="purchased-count" class="count-pill">0</span></h3>
+          <span class="chevron">⌄</span>
+        </div>
+        <div class="collapse-body" id="purchased-list-body"></div>
+      </div>
+    </section>
+
+    <!-- ================= METAS ================= -->
+    <section class="page" id="page-goals" data-page="goals">
+      <div class="page-head">
+        <div>
+          <h1>Metas</h1>
+          <p class="page-sub">O que você está construindo</p>
+        </div>
+        <div class="page-head-actions">
+          <div class="segmented" id="goals-tabs">
+            <button class="segmented-btn active" data-tab="anual">Anuais</button>
+            <button class="segmented-btn" data-tab="mensal">Mensais</button>
+            <button class="segmented-btn" data-tab="semanal">Semanais</button>
+          </div>
+          <button class="btn btn-primary" id="goals-add-btn">+ Nova meta</button>
+        </div>
+      </div>
+      <div class="goals-grid" id="goals-grid"></div>
+    </section>
+
+    <!-- ================= ESTUDOS ================= -->
+    <section class="page" id="page-studies" data-page="studies">
+      <div class="page-head">
+        <div>
+          <h1>Estudos</h1>
+          <p class="page-sub">Calendário de provas e conteúdos</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-primary" id="studies-add-btn">+ Nova prova</button>
+        </div>
+      </div>
+      <div class="studies-grid" id="studies-grid"></div>
+    </section>
+
+    <!-- ================= FINANÇAS ================= -->
+    <section class="page" id="page-finances" data-page="finances">
+      <div class="page-head">
+        <div>
+          <h1>Finanças</h1>
+          <p class="page-sub">Um olhar gentil sobre seu dinheiro</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-primary" id="finances-add-btn">+ Novo lançamento</button>
+        </div>
+      </div>
+
+      <div class="stat-grid finance-stat-grid">
+        <div class="stat-card">
+          <span class="stat-icon">↑</span>
+          <div class="stat-info"><span class="stat-value" id="fin-income">R$ 0,00</span><span class="stat-label">entradas</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">↓</span>
+          <div class="stat-info"><span class="stat-value" id="fin-expense">R$ 0,00</span><span class="stat-label">saídas</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">◈</span>
+          <div class="stat-info"><span class="stat-value" id="fin-balance">R$ 0,00</span><span class="stat-label">saldo</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Lançamentos</h3></div>
+        <div id="finances-list" class="simple-list"></div>
+      </div>
+    </section>
+
+    <!-- ================= NOTAS ================= -->
+    <section class="page" id="page-notes" data-page="notes">
+      <div class="page-head">
+        <div>
+          <h1>Notas</h1>
+          <p class="page-sub">Seus pensamentos, guardados com carinho</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-primary" id="notes-add-btn">+ Nova nota</button>
+        </div>
+      </div>
+      <div class="notes-grid" id="notes-grid"></div>
+    </section>
+
+    <!-- ================= CONFIGURAÇÕES ================= -->
+    <section class="page" id="page-settings" data-page="settings">
+      <div class="page-head"><div><h1>Configurações</h1><p class="page-sub">Deixe a Aurela com a sua cara</p></div></div>
+
+      <div class="settings-grid">
+        <div class="card">
+          <div class="card-head"><h3>Perfil</h3></div>
+          <div class="settings-profile">
+            <img id="settings-avatar" class="avatar avatar-lg" src="" alt="Foto de perfil">
+            <div class="settings-profile-fields">
+              <label class="field-label">Nome</label>
+              <input class="input" id="settings-name-input" placeholder="Seu nome">
+              <label class="field-label">Foto de perfil</label>
+              <input type="file" accept="image/*" id="settings-avatar-input" class="input">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Tema</h3></div>
+          <div class="theme-options" id="theme-options"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Cor de destaque</h3></div>
+          <div class="color-options" id="color-options"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Atalhos de teclado</h3></div>
+          <ul class="shortcut-list">
+            <li><kbd>N</kbd> Nova tarefa/item na página atual</li>
+            <li><kbd>/</kbd> Focar pesquisa (Compras)</li>
+            <li><kbd>Esc</kbd> Fechar janela aberta</li>
+            <li><kbd>D</kbd> / <kbd>Shift+D</kbd> Alternar modo escuro</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ MODAL ROOT ============ -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal-box" role="dialog" aria-modal="true"></div>
+</div>
+
+<script src="api.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
