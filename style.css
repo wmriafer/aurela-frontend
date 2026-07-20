@@ -615,3 +615,9 @@ body[data-accent="clean"]{ --accent:#ECECEE; --accent-strong:#9098A3; --accent-d
    LOGOUT
    ========================================================================== */
 .logout-btn{ color: var(--danger); margin-top:6px; }
+
+.custom-bg-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.custom-bg-row input[type="color"]{
+  width:52px; height:40px; border-radius:10px; border:1px solid var(--border);
+  padding:2px; cursor:pointer; background:none;
+}
