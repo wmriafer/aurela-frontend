@@ -616,8 +616,68 @@ body[data-accent="clean"]{ --accent:#ECECEE; --accent-strong:#9098A3; --accent-d
    ========================================================================== */
 .logout-btn{ color: var(--danger); margin-top:6px; }
 
+/* ==========================================================================
+   COR DE FUNDO PERSONALIZADA
+   ========================================================================== */
 .custom-bg-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
 .custom-bg-row input[type="color"]{
   width:52px; height:40px; border-radius:10px; border:1px solid var(--border);
   padding:2px; cursor:pointer; background:none;
 }
+
+/* ==========================================================================
+   PÁGINA DE APRESENTAÇÃO (antes do login)
+   ========================================================================== */
+.auth-screen{
+  min-height:100vh; display:flex; flex-direction:column;
+  background: radial-gradient(circle at 20% 0%, var(--accent-tint), var(--bg) 55%);
+}
+.landing-topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 28px; border-bottom:1px solid var(--border);
+}
+.landing-brand{ display:flex; align-items:center; gap:8px; }
+.landing-brand .brand-mark{ font-size:22px; color: var(--accent-deep); }
+.landing-brand .brand-name{ font-family: var(--font-display); font-weight:700; font-size:19px; }
+.landing-topbar-actions{ display:flex; gap:10px; }
+
+.landing-hero{
+  flex:1; display:flex; flex-direction:column; align-items:center; text-align:center;
+  padding: 64px 24px 80px; max-width:720px; margin:0 auto;
+}
+.landing-hero-mark{ font-size:40px; color: var(--accent-deep); margin-bottom:10px; }
+.landing-hero h1{ font-family: var(--font-display); font-size:clamp(28px,5vw,42px); font-weight:700; margin-bottom:14px; }
+.landing-hero-sub{ color: var(--text-soft); font-size:16px; max-width:480px; margin-bottom:26px; }
+.landing-hero-cta{ padding:14px 30px; font-size:15px; margin-bottom:56px; }
+
+.landing-features{
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:18px; width:100%;
+}
+.landing-feature-card{
+  background: var(--card); border:1px solid var(--border); border-radius: var(--radius-md);
+  padding:22px 18px; box-shadow: var(--shadow-sm); text-align:left;
+}
+.landing-feature-card span{ font-size:24px; }
+.landing-feature-card h3{ font-size:15px; margin:10px 0 6px; }
+.landing-feature-card p{ font-size:13px; color: var(--text-soft); }
+
+@media (max-width: 640px){
+  .landing-topbar{ padding:14px 16px; }
+  .landing-topbar-actions .btn{ padding:9px 14px; font-size:13px; }
+}
+
+/* ==========================================================================
+   JANELA (MODAL) DE LOGIN / CADASTRO
+   ========================================================================== */
+.auth-modal-backdrop{
+  position:fixed; inset:0; background: rgba(20,14,18,0.45); backdrop-filter: blur(3px);
+  display:flex; align-items:center; justify-content:center; padding:20px; z-index:200;
+  opacity:0; pointer-events:none; transition: opacity var(--transition);
+}
+.auth-modal-backdrop.open{ opacity:1; pointer-events:auto; }
+.auth-modal-backdrop .auth-card{ position:relative; }
+.auth-modal-close{
+  position:absolute; top:14px; right:14px; background:none; border:none; cursor:pointer;
+  font-size:16px; color: var(--text-faint); width:28px; height:28px; border-radius:50%;
+}
+.auth-modal-close:hover{ background: var(--accent-tint); color: var(--text); }
