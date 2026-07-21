@@ -1177,12 +1177,27 @@ function showAuthScreen() {
   $('#auth-screen').classList.remove('hidden');
   $('#app-shell').classList.add('hidden');
   $('#mobile-topbar').classList.add('hidden');
+  closeAuthModal();
 }
 function showApp() {
   $('#auth-screen').classList.add('hidden');
   $('#app-shell').classList.remove('hidden');
   $('#mobile-topbar').classList.remove('hidden');
+  closeAuthModal();
 }
+
+function openAuthModal(tab) {
+  $('#auth-modal-backdrop').classList.add('open');
+  if (tab) $$('#auth-tabs [data-auth-tab]').forEach(b => { if (b.dataset.authTab === tab) b.click(); });
+}
+function closeAuthModal() {
+  $('#auth-modal-backdrop').classList.remove('open');
+}
+$('#open-login-btn').addEventListener('click', () => openAuthModal('login'));
+$('#open-register-btn').addEventListener('click', () => openAuthModal('register'));
+$('#open-register-cta').addEventListener('click', () => openAuthModal('register'));
+$('#auth-modal-close').addEventListener('click', closeAuthModal);
+$('#auth-modal-backdrop').addEventListener('click', e => { if (e.target.id === 'auth-modal-backdrop') closeAuthModal(); });
 
 $$('#auth-tabs [data-auth-tab]').forEach(btn => btn.addEventListener('click', () => {
   $$('#auth-tabs [data-auth-tab]').forEach(b => b.classList.remove('active'));
