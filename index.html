@@ -1,683 +1,497 @@
-/* ==========================================================================
-   ESSENCE — organizador pessoal
-   Design tokens, tema claro/escuro e paleta de cores de destaque
-   ========================================================================== */
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurela — seu planner online</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="alternate icon" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-:root{
-  /* --- paleta base (light) --- */
-  --bg: #FFF9FB;
-  --bg-soft: #FDF1F5;
-  --card: #FFFFFF;
-  --card-soft: #FFF5F8;
-  --border: #F3DEE6;
-  --text: #3B2A31;
-  --text-soft: #8A7480;
-  --text-faint: #B9A5AF;
+<!-- ============ CONFIGURAÇÃO DA API ============ -->
+<script>
+  // Em produção, troque pela URL pública do seu back-end (ex: https://sua-api.onrender.com)
+  window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000';
+</script>
 
-  /* --- accent (rosa bebê) --- trocável em Configurações */
-  --accent: #F8DCE6;
-  --accent-strong: #D68CA4;
-  --accent-deep: #B96A85;
-  --accent-tint: #FCEEF3;
+<!-- ============ TELA DE APRESENTAÇÃO (antes do login) ============ -->
+<div class="auth-screen" id="auth-screen">
+  <header class="landing-topbar">
+    <div class="landing-brand">
+      <span class="brand-mark">✿</span>
+      <span class="brand-name">Aurela</span>
+    </div>
+    <div class="landing-topbar-actions">
+      <button class="btn btn-ghost" id="open-login-btn">Entrar</button>
+      <button class="btn btn-primary" id="open-register-btn">Criar conta</button>
+    </div>
+  </header>
 
-  --success: #A9C6A3;
-  --success-strong: #7FA579;
-  --warning: #E8C07D;
-  --danger: #E39A9A;
+  <main class="landing-hero">
+    <span class="landing-hero-mark">✿</span>
+    <h1>Sua rotina, com leveza e beleza.</h1>
+    <p class="landing-hero-sub">O planner online para organizar seus dias, hábitos, metas e muito mais — do seu jeito, na sua cor favorita.</p>
+    <button class="btn btn-primary landing-hero-cta" id="open-register-cta">Criar minha conta grátis</button>
 
-  --shadow-sm: 0 2px 8px rgba(190,120,145,0.08);
-  --shadow-md: 0 8px 24px rgba(190,120,145,0.12);
-  --shadow-lg: 0 16px 48px rgba(190,120,145,0.16);
+    <div class="landing-features">
+      <div class="landing-feature-card">
+        <span>🗓️</span>
+        <h3>Planejamento diário, semanal e mensal</h3>
+        <p>Organize suas tarefas do jeito que faz sentido pra você.</p>
+      </div>
+      <div class="landing-feature-card">
+        <span>🌱</span>
+        <h3>Hábitos e metas</h3>
+        <p>Acompanhe seu progresso com barras e estatísticas visuais.</p>
+      </div>
+      <div class="landing-feature-card">
+        <span>🎨</span>
+        <h3>Totalmente personalizável</h3>
+        <p>Temas prontos ou sua própria cor de fundo, do jeito que você preferir.</p>
+      </div>
+    </div>
+  </main>
+</div>
 
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+<!-- ============ JANELA DE LOGIN / CADASTRO ============ -->
+<div class="auth-modal-backdrop" id="auth-modal-backdrop">
+  <div class="auth-card">
+    <button class="auth-modal-close" id="auth-modal-close" aria-label="Fechar">✕</button>
+    <div class="auth-brand">
+      <span class="brand-mark">✿</span>
+      <span class="brand-name">Aurela</span>
+    </div>
+    <p class="auth-tagline">Sua rotina, com leveza e beleza.</p>
 
-  --font-display: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+    <div class="segmented auth-tabs" id="auth-tabs">
+      <button class="segmented-btn active" data-auth-tab="login">Entrar</button>
+      <button class="segmented-btn" data-auth-tab="register">Criar conta</button>
+    </div>
 
-  --sidebar-w: 264px;
-  --transition: 220ms cubic-bezier(.4,0,.2,1);
-}
+    <form id="login-form" class="auth-form">
+      <label class="field-label">E-mail</label>
+      <input class="input" type="email" id="login-email" placeholder="voce@email.com" required autocomplete="email">
+      <label class="field-label">Senha</label>
+      <input class="input" type="password" id="login-password" placeholder="Sua senha" required autocomplete="current-password">
+      <button type="button" class="auth-link" id="forgot-password-link">Esqueci minha senha</button>
+      <button type="submit" class="btn btn-primary auth-submit">Entrar</button>
+      <p class="auth-error" id="login-error"></p>
+    </form>
 
-[data-theme="dark"]{
-  --bg: #221820;
-  --bg-soft: #2A1E27;
-  --card: #2E212A;
-  --card-soft: #33242F;
-  --border: #4A3540;
-  --text: #F5E9EE;
-  --text-soft: #C7AFBB;
-  --text-faint: #8D7480;
+    <form id="register-form" class="auth-form hidden">
+      <label class="field-label">Nome</label>
+      <input class="input" type="text" id="register-name" placeholder="Seu nome" required autocomplete="name">
+      <label class="field-label">E-mail</label>
+      <input class="input" type="email" id="register-email" placeholder="voce@email.com" required autocomplete="email">
+      <label class="field-label">Senha</label>
+      <input class="input" type="password" id="register-password" placeholder="Mínimo de 6 caracteres" required autocomplete="new-password" minlength="6">
+      <button type="submit" class="btn btn-primary auth-submit">Criar minha conta</button>
+      <p class="auth-error" id="register-error"></p>
+    </form>
+  </div>
+</div>
 
-  --accent-tint: #3A2732;
-  --shadow-sm: 0 2px 10px rgba(0,0,0,0.25);
-  --shadow-md: 0 8px 28px rgba(0,0,0,0.32);
-  --shadow-lg: 0 20px 50px rgba(0,0,0,0.42);
-}
+<!-- ============ TOAST CONTAINER ============ -->
+<div id="toast-container" class="toast-container"></div>
 
-/* accent color variants, applied via [data-accent] on <body> */
-body[data-accent="rose"]{ --accent:#F8DCE6; --accent-strong:#D68CA4; --accent-deep:#B96A85; }
-body[data-accent="lavender"]{ --accent:#E4DBF5; --accent-strong:#9F86C9; --accent-deep:#7E64AA; }
-body[data-accent="peach"]{ --accent:#FBE3D3; --accent-strong:#E0975F; --accent-deep:#C0763F; }
-body[data-accent="sage"]{ --accent:#DCE9DA; --accent-strong:#7FA579; --accent-deep:#5F8459; }
-body[data-accent="sky"]{ --accent:#D9E7F5; --accent-strong:#6FA0C9; --accent-deep:#4E80AA; }
+<!-- ============ PETAL CONFETTI LAYER ============ -->
+<div id="petal-layer" class="petal-layer" aria-hidden="true"></div>
 
-*{ box-sizing: border-box; }
-html{ scroll-behavior: smooth; }
-body{
-  margin:0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  transition: background var(--transition), color var(--transition);
-}
-h1,h2,h3,h4{ font-family: var(--font-display); margin:0; letter-spacing:-0.01em; }
-p{ margin:0; }
-button{ font-family: var(--font-body); }
-::selection{ background: var(--accent); color: var(--accent-deep); }
+<!-- ============ MOBILE TOPBAR ============ -->
+<header class="mobile-topbar hidden" id="mobile-topbar">
+  <button id="mobile-menu-btn" class="icon-btn" aria-label="Abrir menu">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <span class="mobile-topbar-title">Aurela</span>
+  <button id="mobile-theme-btn" class="icon-btn" aria-label="Alternar tema">🌙</button>
+</header>
 
-/* scrollbar */
-::-webkit-scrollbar{ width:8px; height:8px; }
-::-webkit-scrollbar-thumb{ background: var(--border); border-radius: 10px; }
-::-webkit-scrollbar-track{ background: transparent; }
+<div class="app-shell hidden" id="app-shell">
 
-@media (prefers-reduced-motion: reduce){
-  *{ animation-duration: .001ms !important; transition-duration: .001ms !important; }
-}
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark">✿</span>
+      <span class="brand-name">Aurela</span>
+    </div>
 
-/* ==========================================================================
-   LAYOUT SHELL
-   ========================================================================== */
-.app-shell{ display:flex; min-height:100vh; }
+    <div class="profile-mini" data-nav="settings">
+      <img id="sidebar-avatar" class="avatar avatar-sm" src="" alt="Foto de perfil">
+      <div class="profile-mini-text">
+        <span id="sidebar-username" class="profile-mini-name">Minha conta</span>
+        <span class="profile-mini-sub">ver perfil</span>
+      </div>
+    </div>
 
-.sidebar{
-  width: var(--sidebar-w);
-  flex-shrink:0;
-  background: var(--card);
-  border-right: 1px solid var(--border);
-  display:flex;
-  flex-direction:column;
-  padding: 24px 16px;
-  position: sticky;
-  top:0;
-  height: 100vh;
-  z-index: 40;
-}
+    <nav class="nav" id="nav-menu">
+      <button class="nav-item active" data-nav="dashboard">
+        <span class="nav-icon">⌂</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-nav="daily">
+        <span class="nav-icon">☀</span><span>Planner Diário</span>
+      </button>
+      <button class="nav-item" data-nav="weekly">
+        <span class="nav-icon">▦</span><span>Planner Semanal</span>
+      </button>
+      <button class="nav-item" data-nav="monthly">
+        <span class="nav-icon">▤</span><span>Planner Mensal</span>
+      </button>
+      <button class="nav-item" data-nav="habits">
+        <span class="nav-icon">✓</span><span>Hábitos</span>
+      </button>
+      <button class="nav-item" data-nav="shopping">
+        <span class="nav-icon">♡</span><span>Lista de Compras</span>
+      </button>
+      <button class="nav-item" data-nav="goals">
+        <span class="nav-icon">✦</span><span>Metas</span>
+      </button>
+      <button class="nav-item" data-nav="studies">
+        <span class="nav-icon">✎</span><span>Estudos</span>
+      </button>
+      <button class="nav-item" data-nav="finances">
+        <span class="nav-icon">◈</span><span>Finanças</span>
+      </button>
+      <button class="nav-item" data-nav="notes">
+        <span class="nav-icon">✐</span><span>Notas</span>
+      </button>
+      <button class="nav-item" data-nav="settings">
+        <span class="nav-icon">⚙</span><span>Configurações</span>
+      </button>
+    </nav>
 
-.brand{ display:flex; align-items:center; gap:10px; padding: 4px 10px 20px; }
-.brand-mark{ font-size:22px; color: var(--accent-strong); }
-.brand-name{ font-family: var(--font-display); font-weight:700; font-size:20px; letter-spacing:-0.02em; }
+    <div class="sidebar-footer">
+      <button id="theme-toggle" class="theme-toggle">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-label">Modo escuro</span>
+      </button>
+      <button id="logout-btn" class="theme-toggle logout-btn">
+        <span>⎋</span>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
 
-.profile-mini{
-  display:flex; align-items:center; gap:10px;
-  padding:10px; border-radius: var(--radius-md);
-  cursor:pointer; margin-bottom: 18px;
-  transition: background var(--transition);
-}
-.profile-mini:hover{ background: var(--accent-tint); }
-.profile-mini-text{ display:flex; flex-direction:column; overflow:hidden; }
-.profile-mini-name{ font-weight:600; font-size:14px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
-.profile-mini-sub{ font-size:11px; color: var(--text-soft); }
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-.avatar{ border-radius:50%; object-fit:cover; background: var(--accent); }
-.avatar-sm{ width:36px; height:36px; }
-.avatar-lg{ width:84px; height:84px; }
+  <!-- ============ MAIN CONTENT ============ -->
+  <main class="main" id="main-content">
 
-.nav{ display:flex; flex-direction:column; gap:2px; flex:1; overflow-y:auto; }
-.nav-item{
-  display:flex; align-items:center; gap:12px;
-  background:none; border:none; text-align:left;
-  padding:11px 12px; border-radius: var(--radius-sm);
-  color: var(--text-soft); font-size:14.5px; font-weight:500;
-  cursor:pointer; transition: all var(--transition);
-}
-.nav-icon{ font-size:16px; width:18px; text-align:center; color: var(--accent-strong); }
-.nav-item:hover{ background: var(--accent-tint); color: var(--text); }
-.nav-item.active{ background: var(--accent); color: var(--accent-deep); font-weight:600; box-shadow: var(--shadow-sm); }
+    <!-- ================= DASHBOARD ================= -->
+    <section class="page active" id="page-dashboard" data-page="dashboard">
+      <div class="page-hero">
+        <div class="hero-text">
+          <p class="hero-eyebrow" id="hero-date">—</p>
+          <h1 class="hero-title" id="hero-greeting">Bem-vinda de volta ✿</h1>
+          <p class="hero-quote" id="hero-quote">Carregando frase do dia...</p>
+        </div>
+        <div class="hero-clock-card">
+          <span class="hero-clock" id="hero-clock">00:00</span>
+          <span class="hero-clock-label">agora</span>
+        </div>
+      </div>
 
-.sidebar-footer{ padding-top:14px; border-top:1px solid var(--border); margin-top:10px; }
-.theme-toggle{
-  width:100%; display:flex; align-items:center; gap:10px;
-  background: var(--bg-soft); border:1px solid var(--border);
-  border-radius: var(--radius-sm); padding:10px 12px; cursor:pointer;
-  color: var(--text); font-size:13.5px; font-weight:500;
-  transition: all var(--transition);
-}
-.theme-toggle:hover{ border-color: var(--accent-strong); }
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-ring" id="ring-tasks"></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-tasks">0/0</span>
+            <span class="stat-label">tarefas de hoje</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ring" id="ring-habits"></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-habits">0/0</span>
+            <span class="stat-label">hábitos concluídos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">♡</span>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-shopping">0</span>
+            <span class="stat-label">compras pendentes</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">✦</span>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-goals">0</span>
+            <span class="stat-label">metas concluídas</span>
+          </div>
+        </div>
+      </div>
 
-.sidebar-overlay{
-  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:35;
-}
+      <div class="dash-grid">
+        <div class="card dash-calendar">
+          <div class="card-head">
+            <h3 id="mini-cal-title">—</h3>
+            <div class="card-head-actions">
+              <button class="icon-btn sm" id="mini-cal-prev">‹</button>
+              <button class="icon-btn sm" id="mini-cal-next">›</button>
+            </div>
+          </div>
+          <div class="mini-calendar" id="mini-calendar"></div>
+        </div>
 
-.mobile-topbar{ display:none; }
+        <div class="card dash-summary">
+          <div class="card-head"><h3>Resumo do dia</h3></div>
+          <div id="dash-today-list" class="simple-list"></div>
+        </div>
+      </div>
+    </section>
 
-.main{ flex:1; padding: 32px 40px 80px; max-width: 1240px; }
+    <!-- ================= PLANNER DIÁRIO ================= -->
+    <section class="page" id="page-daily" data-page="daily">
+      <div class="page-head">
+        <div>
+          <h1>Planner Diário</h1>
+          <p class="page-sub" id="daily-date-label">—</p>
+        </div>
+        <div class="page-head-actions">
+          <input type="date" id="daily-date-picker" class="input date-input">
+          <button class="btn btn-primary" id="daily-add-btn">+ Nova tarefa</button>
+        </div>
+      </div>
 
-/* ==========================================================================
-   SHARED UI: buttons, inputs, cards
-   ========================================================================== */
-.icon-btn{
-  width:36px; height:36px; border-radius:50%; border:1px solid var(--border);
-  background: var(--card); color: var(--text); cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  transition: all var(--transition);
-}
-.icon-btn:hover{ background: var(--accent-tint); border-color: var(--accent-strong); transform: translateY(-1px); }
-.icon-btn.sm{ width:28px; height:28px; font-size:13px; }
+      <div class="progress-bar-wrap">
+        <div class="progress-bar"><div class="progress-bar-fill" id="daily-progress-fill"></div></div>
+        <span class="progress-label" id="daily-progress-label">0% concluído</span>
+      </div>
 
-.btn{
-  border:none; border-radius: var(--radius-sm); padding:10px 18px;
-  font-size:14px; font-weight:600; cursor:pointer; font-family: var(--font-body);
-  transition: all var(--transition); white-space:nowrap;
-}
-.btn-primary{ background: var(--accent-strong); color:#fff; box-shadow: var(--shadow-sm); }
-.btn-primary:hover{ background: var(--accent-deep); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.btn-ghost{ background: var(--card); color: var(--text); border:1px solid var(--border); }
-.btn-ghost:hover{ border-color: var(--accent-strong); color: var(--accent-deep); }
-.btn-danger-text{ background:none; border:none; color: var(--danger); cursor:pointer; font-size:13px; font-weight:600; }
-.btn-sm{ padding:6px 12px; font-size:12.5px; }
+      <div class="period-columns">
+        <div class="period-col" data-period="manha">
+          <h4 class="period-title">☀ Manhã</h4>
+          <div class="task-list" id="list-manha"></div>
+        </div>
+        <div class="period-col" data-period="tarde">
+          <h4 class="period-title">◐ Tarde</h4>
+          <div class="task-list" id="list-tarde"></div>
+        </div>
+        <div class="period-col" data-period="noite">
+          <h4 class="period-title">☾ Noite</h4>
+          <div class="task-list" id="list-noite"></div>
+        </div>
+      </div>
+    </section>
 
-.input, select.input, textarea.input{
-  border:1px solid var(--border); background: var(--card);
-  border-radius: var(--radius-sm); padding:10px 14px; font-size:14px;
-  color: var(--text); font-family: var(--font-body); outline:none;
-  transition: all var(--transition);
-}
-.input:focus{ border-color: var(--accent-strong); box-shadow: 0 0 0 3px var(--accent-tint); }
-textarea.input{ resize: vertical; min-height:70px; }
-.date-input{ font-family: var(--font-body); }
+    <!-- ================= PLANNER SEMANAL ================= -->
+    <section class="page" id="page-weekly" data-page="weekly">
+      <div class="page-head">
+        <div>
+          <h1>Planner Semanal</h1>
+          <p class="page-sub" id="weekly-range-label">—</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="icon-btn" id="weekly-prev">‹</button>
+          <button class="btn btn-ghost" id="weekly-today">Hoje</button>
+          <button class="icon-btn" id="weekly-next">›</button>
+        </div>
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+    </section>
 
-.card{
-  background: var(--card); border:1px solid var(--border);
-  border-radius: var(--radius-lg); padding:20px 22px;
-  box-shadow: var(--shadow-sm);
-}
-.card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.card-head h3{ font-size:16px; font-weight:600; }
-.card-head-actions{ display:flex; gap:6px; }
-.count-pill{
-  background: var(--accent-tint); color: var(--accent-deep); font-size:11px;
-  padding:2px 8px; border-radius:20px; font-weight:700; margin-left:6px;
-}
+    <!-- ================= PLANNER MENSAL ================= -->
+    <section class="page" id="page-monthly" data-page="monthly">
+      <div class="page-head">
+        <div>
+          <h1>Planner Mensal</h1>
+          <p class="page-sub" id="monthly-label">—</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="icon-btn" id="monthly-prev">‹</button>
+          <button class="btn btn-ghost" id="monthly-today">Hoje</button>
+          <button class="icon-btn" id="monthly-next">›</button>
+        </div>
+      </div>
+      <div class="month-weekdays" id="month-weekdays"></div>
+      <div class="month-grid" id="month-grid"></div>
+    </section>
 
-.page{ display:none; animation: fadeUp 380ms ease; }
-.page.active{ display:block; }
-@keyframes fadeUp{ from{ opacity:0; transform: translateY(10px);} to{ opacity:1; transform:none; } }
+    <!-- ================= HÁBITOS ================= -->
+    <section class="page" id="page-habits" data-page="habits">
+      <div class="page-head">
+        <div>
+          <h1>Hábitos</h1>
+          <p class="page-sub">Pequenos passos, todos os dias</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" id="habits-category-btn">+ Categoria</button>
+          <button class="btn btn-primary" id="habits-add-btn">+ Novo hábito</button>
+        </div>
+      </div>
 
-.page-head{ display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:24px; }
-.page-head h1{ font-size:28px; font-weight:700; }
-.page-sub{ color: var(--text-soft); font-size:14px; margin-top:4px; }
-.page-head-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+      <div class="habit-stats-row" id="habit-stats-row"></div>
+      <div class="habits-list" id="habits-list"></div>
+    </section>
 
-/* ==========================================================================
-   TOASTS
-   ========================================================================== */
-.toast-container{ position:fixed; bottom:24px; right:24px; z-index:200; display:flex; flex-direction:column; gap:10px; }
-.toast{
-  background: var(--card); border:1px solid var(--border); box-shadow: var(--shadow-lg);
-  border-radius: var(--radius-sm); padding:12px 18px; font-size:14px; font-weight:500;
-  display:flex; align-items:center; gap:10px; animation: toastIn 320ms ease;
-  border-left: 4px solid var(--accent-strong);
-}
-@keyframes toastIn{ from{ opacity:0; transform: translateX(30px);} to{ opacity:1; transform:none; } }
-.toast.leaving{ animation: toastOut 260ms ease forwards; }
-@keyframes toastOut{ to{ opacity:0; transform: translateX(30px); } }
+    <!-- ================= LISTA DE COMPRAS ================= -->
+    <section class="page" id="page-shopping" data-page="shopping">
+      <div class="page-head">
+        <div>
+          <h1>Lista de Compras</h1>
+          <p class="page-sub">Tudo o que você quer, organizado com carinho</p>
+        </div>
+        <div class="page-head-actions">
+          <input class="input" id="shopping-search" placeholder="Pesquisar item...">
+          <button class="btn btn-ghost" id="shopping-category-btn">+ Categoria</button>
+          <button class="btn btn-primary" id="shopping-add-btn">+ Novo item</button>
+        </div>
+      </div>
 
-/* ==========================================================================
-   PETAL CONFETTI
-   ========================================================================== */
-.petal-layer{ position:fixed; inset:0; pointer-events:none; z-index:150; overflow:hidden; }
-.petal{
-  position:absolute; top:-30px; font-size:20px; will-change: transform, opacity;
-  animation-name: petal-fall; animation-timing-function: ease-in; animation-fill-mode: forwards;
-}
-@keyframes petal-fall{
-  0%{ transform: translateY(0) translateX(0) rotate(0deg); opacity:1; }
-  100%{ transform: translateY(105vh) translateX(var(--drift,40px)) rotate(340deg); opacity:0.15; }
-}
+      <div id="shopping-categories"></div>
 
-/* ==========================================================================
-   DASHBOARD
-   ========================================================================== */
-.page-hero{
-  position:relative; overflow:hidden;
-  background: linear-gradient(135deg, var(--accent-tint), var(--bg-soft));
-  border:1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 32px 34px; display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:24px; gap:20px;
-}
-.page-hero::before{
-  content:""; position:absolute; width:280px; height:280px; border-radius:50%;
-  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-  top:-120px; right:-80px; opacity:.7; animation: blobFloat 9s ease-in-out infinite;
-}
-.page-hero::after{
-  content:""; position:absolute; width:180px; height:180px; border-radius:50%;
-  background: radial-gradient(circle, var(--accent-strong) 0%, transparent 70%);
-  bottom:-90px; left:30%; opacity:.18; animation: blobFloat 11s ease-in-out infinite reverse;
-}
-@keyframes blobFloat{ 0%,100%{ transform: translate(0,0) scale(1);} 50%{ transform: translate(-16px,14px) scale(1.06);} }
-.hero-text{ position:relative; z-index:1; max-width:560px; }
-.hero-eyebrow{ font-size:13px; color: var(--accent-deep); font-weight:600; text-transform:capitalize; }
-.hero-title{ font-size:30px; margin:6px 0 10px; }
-.hero-quote{ font-size:14.5px; color: var(--text-soft); font-style:italic; }
-.hero-clock-card{
-  position:relative; z-index:1; background: var(--card); border-radius: var(--radius-md);
-  padding:18px 26px; text-align:center; box-shadow: var(--shadow-md); flex-shrink:0;
-}
-.hero-clock{ font-family: var(--font-display); font-size:30px; font-weight:700; display:block; }
-.hero-clock-label{ font-size:12px; color: var(--text-soft); }
+      <div class="card shopping-purchased">
+        <div class="card-head collapsible" data-collapse="comprados">
+          <h3>✓ Comprados <span id="purchased-count" class="count-pill">0</span></h3>
+          <span class="chevron">⌄</span>
+        </div>
+        <div class="collapse-body" id="purchased-list-body"></div>
+      </div>
+    </section>
 
-.stat-grid{ display:grid; grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:24px; }
-.stat-card{
-  background: var(--card); border:1px solid var(--border); border-radius: var(--radius-md);
-  padding:18px; display:flex; align-items:center; gap:14px; box-shadow: var(--shadow-sm);
-  transition: transform var(--transition);
-}
-.stat-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-md); }
-.stat-icon{ font-size:22px; color: var(--accent-strong); width:44px; height:44px; border-radius:50%; background: var(--accent-tint); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.stat-ring{ width:44px; height:44px; border-radius:50%; flex-shrink:0;
-  background: conic-gradient(var(--accent-strong) calc(var(--pct,0)*1%), var(--border) 0);
-  display:flex; align-items:center; justify-content:center; transition: background 500ms ease; }
-.stat-ring::after{ content:""; width:30px; height:30px; border-radius:50%; background: var(--card); }
-.stat-value{ font-family: var(--font-display); font-weight:700; font-size:18px; display:block; }
-.stat-label{ font-size:12px; color: var(--text-soft); }
+    <!-- ================= METAS ================= -->
+    <section class="page" id="page-goals" data-page="goals">
+      <div class="page-head">
+        <div>
+          <h1>Metas</h1>
+          <p class="page-sub">O que você está construindo</p>
+        </div>
+        <div class="page-head-actions">
+          <div class="segmented" id="goals-tabs">
+            <button class="segmented-btn active" data-tab="anual">Anuais</button>
+            <button class="segmented-btn" data-tab="mensal">Mensais</button>
+            <button class="segmented-btn" data-tab="semanal">Semanais</button>
+          </div>
+          <button class="btn btn-primary" id="goals-add-btn">+ Nova meta</button>
+        </div>
+      </div>
+      <div class="goals-grid" id="goals-grid"></div>
+    </section>
 
-.dash-grid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:18px; }
-.simple-list{ display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; }
-.simple-item{
-  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius: var(--radius-sm);
-  background: var(--bg-soft); font-size:13.5px;
-}
-.simple-item .dot{ width:8px; height:8px; border-radius:50%; background: var(--accent-strong); flex-shrink:0; }
-.empty-hint{ color: var(--text-faint); font-size:13px; padding:20px 6px; text-align:center; }
+    <!-- ================= ESTUDOS ================= -->
+    <section class="page" id="page-studies" data-page="studies">
+      <div class="page-head">
+        <div>
+          <h1>Estudos</h1>
+          <p class="page-sub">Calendário de provas e conteúdos</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-primary" id="studies-add-btn">+ Nova prova</button>
+        </div>
+      </div>
+      <div class="studies-grid" id="studies-grid"></div>
+    </section>
 
-.mini-calendar{ display:grid; grid-template-columns: repeat(7,1fr); gap:4px; }
-.mini-cal-dow{ font-size:11px; text-align:center; color: var(--text-faint); font-weight:600; padding-bottom:4px; }
-.mini-cal-day{
-  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
-  border-radius:50%; font-size:12.5px; cursor:pointer; color: var(--text);
-  transition: all var(--transition); position:relative;
-}
-.mini-cal-day:hover{ background: var(--accent-tint); }
-.mini-cal-day.today{ background: var(--accent-strong); color:#fff; font-weight:700; }
-.mini-cal-day.other-month{ color: var(--text-faint); }
-.mini-cal-day.has-task::after{ content:""; position:absolute; bottom:3px; width:4px; height:4px; border-radius:50%; background: var(--accent-deep); }
-.mini-cal-day.today.has-task::after{ background:#fff; }
+    <!-- ================= FINANÇAS ================= -->
+    <section class="page" id="page-finances" data-page="finances">
+      <div class="page-head">
+        <div>
+          <h1>Finanças</h1>
+          <p class="page-sub">Um olhar gentil sobre seu dinheiro</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-primary" id="finances-add-btn">+ Novo lançamento</button>
+        </div>
+      </div>
 
-/* ==========================================================================
-   PROGRESS BAR
-   ========================================================================== */
-.progress-bar-wrap{ display:flex; align-items:center; gap:12px; margin-bottom:20px; }
-.progress-bar{ flex:1; height:10px; border-radius:10px; background: var(--bg-soft); overflow:hidden; border:1px solid var(--border); }
-.progress-bar-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--accent-strong), var(--accent-deep)); border-radius:10px; transition: width 500ms cubic-bezier(.4,0,.2,1); }
-.progress-label{ font-size:12.5px; color: var(--text-soft); font-weight:600; white-space:nowrap; }
+      <div class="stat-grid finance-stat-grid">
+        <div class="stat-card">
+          <span class="stat-icon">↑</span>
+          <div class="stat-info"><span class="stat-value" id="fin-income">R$ 0,00</span><span class="stat-label">entradas</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">↓</span>
+          <div class="stat-info"><span class="stat-value" id="fin-expense">R$ 0,00</span><span class="stat-label">saídas</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">◈</span>
+          <div class="stat-info"><span class="stat-value" id="fin-balance">R$ 0,00</span><span class="stat-label">saldo</span></div>
+        </div>
+      </div>
 
-/* ==========================================================================
-   DAILY PLANNER
-   ========================================================================== */
-.period-columns{ display:grid; grid-template-columns: repeat(3,1fr); gap:18px; }
-.period-col{ background: var(--card-soft); border:1px solid var(--border); border-radius: var(--radius-lg); padding:16px; min-height:200px; }
-.period-title{ font-size:14px; color: var(--accent-deep); margin-bottom:12px; font-weight:700; }
-.task-list{ display:flex; flex-direction:column; gap:10px; min-height:40px; }
+      <div class="card">
+        <div class="card-head"><h3>Lançamentos</h3></div>
+        <div id="finances-list" class="simple-list"></div>
+      </div>
+    </section>
 
-.task-card{
-  background: var(--card); border:1px solid var(--border); border-radius: var(--radius-md);
-  padding:12px 14px; box-shadow: var(--shadow-sm); cursor:grab; transition: all var(--transition);
-  position:relative;
-}
-.task-card:active{ cursor:grabbing; }
-.task-card.dragging{ opacity:.4; }
-.task-card:hover{ box-shadow: var(--shadow-md); transform: translateY(-2px); }
-.task-card.done{ opacity:.55; }
-.task-card.done .task-title{ text-decoration: line-through; }
-.task-top{ display:flex; align-items:flex-start; gap:10px; }
-.task-check{
-  width:20px; height:20px; border-radius:50%; border:2px solid var(--accent-strong); flex-shrink:0;
-  cursor:pointer; margin-top:2px; display:flex; align-items:center; justify-content:center;
-  transition: all var(--transition); background:transparent; color:#fff; font-size:11px;
-}
-.task-check.checked{ background: var(--accent-strong); }
-.task-title{ font-size:14px; font-weight:600; flex:1; }
-.task-meta{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
-.task-time{ font-size:11.5px; color: var(--text-soft); }
-.priority-pill{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.03em; }
-.priority-alta{ background:#FBE1E1; color:#C15C5C; }
-.priority-media{ background:#FDF0D3; color:#B98328; }
-.priority-baixa{ background:#DFEEDC; color:#5F8459; }
-[data-theme="dark"] .priority-alta{ background:#4A2A2A; color:#E39A9A; }
-[data-theme="dark"] .priority-media{ background:#463A22; color:#E8C07D; }
-[data-theme="dark"] .priority-baixa{ background:#2A3D28; color:#A9C6A3; }
-.task-actions{ position:absolute; top:8px; right:8px; display:flex; gap:4px; opacity:0; transition: opacity var(--transition); }
-.task-card:hover .task-actions{ opacity:1; }
-.task-actions button{ background:none; border:none; cursor:pointer; font-size:13px; color: var(--text-soft); padding:3px; }
-.task-actions button:hover{ color: var(--accent-deep); }
-.drop-zone-active{ background: var(--accent-tint); }
+    <!-- ================= NOTAS ================= -->
+    <section class="page" id="page-notes" data-page="notes">
+      <div class="page-head">
+        <div>
+          <h1>Notas</h1>
+          <p class="page-sub">Seus pensamentos, guardados com carinho</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-primary" id="notes-add-btn">+ Nova nota</button>
+        </div>
+      </div>
+      <div class="notes-grid" id="notes-grid"></div>
+    </section>
 
-/* ==========================================================================
-   WEEKLY PLANNER
-   ========================================================================== */
-.week-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:12px; }
-.week-day-col{ background: var(--card-soft); border:1px solid var(--border); border-radius: var(--radius-md); padding:12px; min-height:280px; display:flex; flex-direction:column; }
-.week-day-head{ text-align:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
-.week-day-name{ font-size:11px; color: var(--text-soft); text-transform:uppercase; font-weight:700; letter-spacing:.04em; }
-.week-day-num{ font-size:18px; font-weight:700; font-family: var(--font-display); }
-.week-day-col.is-today .week-day-num{ color: var(--accent-strong); }
-.week-day-col.is-today .week-day-head{ border-bottom-color: var(--accent-strong); }
-.week-task-list{ flex:1; display:flex; flex-direction:column; gap:8px; min-height:60px; }
-.week-add-btn{ background:none; border:1px dashed var(--border); border-radius: var(--radius-sm); color: var(--text-faint); font-size:12px; padding:8px; cursor:pointer; margin-top:8px; transition: all var(--transition); }
-.week-add-btn:hover{ border-color: var(--accent-strong); color: var(--accent-deep); }
-.week-task-card{ background: var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:12.5px; cursor:grab; box-shadow: var(--shadow-sm); }
-.week-task-card.done{ opacity:.5; text-decoration:line-through; }
+    <!-- ================= CONFIGURAÇÕES ================= -->
+    <section class="page" id="page-settings" data-page="settings">
+      <div class="page-head"><div><h1>Configurações</h1><p class="page-sub">Deixe a Aurela com a sua cara</p></div></div>
 
-/* ==========================================================================
-   MONTHLY PLANNER
-   ========================================================================== */
-.month-weekdays{ display:grid; grid-template-columns: repeat(7,1fr); gap:10px; margin-bottom:8px; }
-.month-weekdays span{ text-align:center; font-size:12px; font-weight:700; color: var(--text-soft); }
-.month-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:10px; }
-.month-cell{
-  background: var(--card); border:1px solid var(--border); border-radius: var(--radius-sm);
-  min-height:96px; padding:8px; cursor:pointer; transition: all var(--transition); position:relative;
-}
-.month-cell:hover{ border-color: var(--accent-strong); box-shadow: var(--shadow-sm); }
-.month-cell.other-month{ opacity:.4; }
-.month-cell.today{ border-color: var(--accent-strong); background: var(--accent-tint); }
-.month-cell-num{ font-size:13px; font-weight:700; }
-.month-cell-count{
-  position:absolute; bottom:8px; right:8px; background: var(--accent-strong); color:#fff;
-  font-size:10px; font-weight:700; padding:2px 6px; border-radius:20px;
-}
+      <div class="settings-grid">
+        <div class="card">
+          <div class="card-head"><h3>Perfil</h3></div>
+          <div class="settings-profile">
+            <img id="settings-avatar" class="avatar avatar-lg" src="" alt="Foto de perfil">
+            <div class="settings-profile-fields">
+              <label class="field-label">Nome</label>
+              <input class="input" id="settings-name-input" placeholder="Seu nome">
+              <label class="field-label">Foto de perfil</label>
+              <input type="file" accept="image/*" id="settings-avatar-input" class="input">
+            </div>
+          </div>
+        </div>
 
-/* ==========================================================================
-   HABITS
-   ========================================================================== */
-.habit-stats-row{ display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap; }
-.habit-stat-chip{ background: var(--card); border:1px solid var(--border); border-radius: var(--radius-sm); padding:10px 16px; font-size:13px; box-shadow: var(--shadow-sm); }
-.habit-stat-chip b{ color: var(--accent-deep); }
-.habits-list{ display:flex; flex-direction:column; gap:12px; }
-.habit-category-group{ margin-bottom:6px; }
-.habit-category-label{ font-size:12px; font-weight:700; color: var(--text-soft); text-transform:uppercase; letter-spacing:.05em; margin: 14px 0 8px; }
-.habit-row{
-  display:flex; align-items:center; gap:14px; background: var(--card); border:1px solid var(--border);
-  border-radius: var(--radius-md); padding:14px 16px; box-shadow: var(--shadow-sm); transition: all var(--transition);
-}
-.habit-row:hover{ box-shadow: var(--shadow-md); }
-.habit-color-dot{ width:12px; height:12px; border-radius:50%; flex-shrink:0; }
-.habit-row-info{ flex:1; min-width:0; }
-.habit-row-name{ font-weight:600; font-size:14.5px; }
-.habit-row-meta{ font-size:12px; color: var(--text-soft); margin-top:2px; }
-.habit-streak{ font-size:12px; font-weight:700; color: var(--accent-deep); white-space:nowrap; }
-.habit-check-today{
-  width:34px; height:34px; border-radius:50%; border:2px solid var(--accent-strong); background:transparent;
-  cursor:pointer; color:#fff; font-size:15px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  transition: all var(--transition);
-}
-.habit-check-today.checked{ background: var(--accent-strong); transform: scale(1.05); }
-.habit-progress-mini{ width:70px; height:6px; border-radius:6px; background: var(--bg-soft); overflow:hidden; flex-shrink:0; }
-.habit-progress-mini-fill{ height:100%; background: var(--accent-strong); }
-.habit-row-actions{ display:flex; gap:2px; }
-.habit-row-actions button{ background:none; border:none; color: var(--text-faint); cursor:pointer; font-size:14px; padding:4px; }
-.habit-row-actions button:hover{ color: var(--accent-deep); }
+        <div class="card">
+          <div class="card-head"><h3>Tema</h3></div>
+          <div class="theme-options" id="theme-options"></div>
+        </div>
 
-/* ==========================================================================
-   SHOPPING LIST
-   ========================================================================== */
-.shopping-category{ background: var(--card); border:1px solid var(--border); border-radius: var(--radius-lg); margin-bottom:14px; box-shadow: var(--shadow-sm); overflow:hidden; }
-.card-head.collapsible{ cursor:pointer; padding:16px 20px; margin-bottom:0; user-select:none; }
-.chevron{ transition: transform var(--transition); color: var(--text-soft); }
-.shopping-category.collapsed .chevron, .collapsed .chevron{ transform: rotate(-90deg); }
-.collapse-body{ overflow:hidden; transition: max-height 320ms ease, padding 320ms ease; padding: 0 20px 16px; }
-.shopping-category.collapsed .collapse-body, #purchased-list-body.collapsed{ max-height:0 !important; padding-top:0; padding-bottom:0; }
+        <div class="card">
+          <div class="card-head"><h3>Cor de destaque</h3></div>
+          <div class="color-options" id="color-options"></div>
+        </div>
 
-.shopping-item{ display:flex; align-items:center; gap:12px; padding:10px 6px; border-bottom:1px solid var(--border); }
-.shopping-item:last-child{ border-bottom:none; }
-.shopping-check{ width:20px; height:20px; border-radius:6px; border:2px solid var(--accent-strong); background:transparent; cursor:pointer; flex-shrink:0; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; }
-.shopping-check.checked{ background: var(--accent-strong); }
-.shopping-item-info{ flex:1; min-width:0; }
-.shopping-item-name{ font-size:14px; font-weight:600; }
-.shopping-item-name.done{ text-decoration: line-through; color: var(--text-faint); }
-.shopping-item-meta{ font-size:11.5px; color: var(--text-soft); display:flex; gap:8px; flex-wrap:wrap; margin-top:2px; }
-.shopping-item-actions{ display:flex; gap:4px; flex-shrink:0; }
-.shopping-item-actions button{ background:none; border:none; cursor:pointer; font-size:13px; color: var(--text-soft); padding:4px; }
-.shopping-item-actions button:hover{ color: var(--accent-deep); }
-.buy-btn{ color: var(--accent-strong) !important; font-weight:700; }
+        <div class="card">
+          <div class="card-head"><h3>Cor de fundo personalizada</h3></div>
+          <p class="page-sub" style="margin-bottom:12px;">Escolha qualquer cor para o fundo do app, além dos temas prontos.</p>
+          <div class="custom-bg-row">
+            <input type="color" id="custom-bg-input" value="#FFF9FB">
+            <button class="btn btn-ghost" id="custom-bg-reset">Usar cor do tema</button>
+          </div>
+        </div>
 
-/* ==========================================================================
-   GOALS
-   ========================================================================== */
-.segmented{ display:flex; background: var(--bg-soft); border:1px solid var(--border); border-radius: var(--radius-sm); padding:3px; }
-.segmented-btn{ background:none; border:none; padding:7px 14px; font-size:13px; font-weight:600; color: var(--text-soft); border-radius:8px; cursor:pointer; transition: all var(--transition); }
-.segmented-btn.active{ background: var(--card); color: var(--accent-deep); box-shadow: var(--shadow-sm); }
-.goals-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap:16px; }
-.goal-card{ background: var(--card); border:1px solid var(--border); border-radius: var(--radius-lg); padding:18px; box-shadow: var(--shadow-sm); }
-.goal-card-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px; }
-.goal-title{ font-size:15.5px; font-weight:700; }
-.goal-desc{ font-size:12.5px; color: var(--text-soft); margin-bottom:12px; }
-.goal-progress-ring{ width:52px; height:52px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color: var(--accent-deep);
-  background: conic-gradient(var(--accent-strong) calc(var(--pct,0)*1%), var(--border) 0); }
-.goal-progress-ring::after{ content: attr(data-pct); position:relative; background: var(--card); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; }
-.goal-subtasks{ display:flex; flex-direction:column; gap:6px; margin-top:10px; }
-.goal-subtask{ display:flex; align-items:center; gap:8px; font-size:13px; }
-.goal-subtask input[type=checkbox]{ accent-color: var(--accent-strong); width:15px; height:15px; }
-.goal-subtask.done span{ text-decoration:line-through; color: var(--text-faint); }
-.goal-add-subtask{ display:flex; gap:6px; margin-top:10px; }
-.goal-add-subtask input{ flex:1; }
-.goal-card-actions{ display:flex; gap:8px; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
+        <div class="card">
+          <div class="card-head"><h3>Atalhos de teclado</h3></div>
+          <ul class="shortcut-list">
+            <li><kbd>N</kbd> Nova tarefa/item na página atual</li>
+            <li><kbd>/</kbd> Focar pesquisa (Compras)</li>
+            <li><kbd>Esc</kbd> Fechar janela aberta</li>
+            <li><kbd>D</kbd> / <kbd>Shift+D</kbd> Alternar modo escuro</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-/* ==========================================================================
-   STUDIES
-   ========================================================================== */
-.studies-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
-.exam-card{ background: var(--card); border:1px solid var(--border); border-radius: var(--radius-lg); padding:18px; box-shadow: var(--shadow-sm); border-top:4px solid var(--accent-strong); }
-.exam-date-badge{ display:inline-block; background: var(--accent-tint); color: var(--accent-deep); font-size:11.5px; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:10px; }
-.exam-subject{ font-size:16px; font-weight:700; margin-bottom:4px; }
-.exam-topic{ font-size:13px; color: var(--text-soft); margin-bottom:10px; }
-.exam-days-left{ font-size:12px; font-weight:700; color: var(--accent-deep); }
+  </main>
+</div>
 
-/* ==========================================================================
-   SETTINGS
-   ========================================================================== */
-.settings-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:16px; }
-.settings-profile{ display:flex; gap:16px; align-items:center; }
-.settings-profile-fields{ flex:1; display:flex; flex-direction:column; gap:6px; }
-.field-label{ font-size:12px; font-weight:600; color: var(--text-soft); margin-top:6px; }
-.theme-options, .color-options{ display:flex; gap:12px; flex-wrap:wrap; }
-.theme-option{ border:2px solid var(--border); border-radius: var(--radius-sm); padding:10px 16px; cursor:pointer; font-size:13px; font-weight:600; transition: all var(--transition); background: var(--bg-soft); }
-.theme-option.active{ border-color: var(--accent-strong); color: var(--accent-deep); }
-.color-swatch{ width:38px; height:38px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition: all var(--transition); }
-.color-swatch.active{ border-color: var(--text); transform: scale(1.1); }
-.shortcut-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13.5px; }
-kbd{ background: var(--bg-soft); border:1px solid var(--border); border-radius:6px; padding:2px 8px; font-family: var(--font-body); font-size:12px; margin-right:6px; }
+<!-- ============ MODAL ROOT ============ -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal-box" role="dialog" aria-modal="true"></div>
+</div>
 
-/* ==========================================================================
-   MODAL
-   ========================================================================== */
-.modal-backdrop{
-  display:none; position:fixed; inset:0; background: rgba(59,42,49,0.35); backdrop-filter: blur(3px);
-  z-index:180; align-items:center; justify-content:center; padding:20px;
-}
-.modal-backdrop.open{ display:flex; animation: fadeIn 200ms ease; }
-@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
-.modal{
-  background: var(--card); border-radius: var(--radius-lg); padding:26px 28px; width:100%; max-width:480px;
-  box-shadow: var(--shadow-lg); max-height:88vh; overflow-y:auto; animation: modalIn 260ms cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes modalIn{ from{ opacity:0; transform: scale(.94) translateY(10px);} to{ opacity:1; transform:none; } }
-.modal h2{ font-size:19px; margin-bottom:18px; }
-.form-row{ margin-bottom:14px; display:flex; flex-direction:column; gap:6px; }
-.form-row label{ font-size:12.5px; font-weight:600; color: var(--text-soft); }
-.form-row-inline{ display:flex; gap:10px; }
-.form-row-inline > *{ flex:1; }
-.modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
-.chip-select{ display:flex; gap:8px; flex-wrap:wrap; }
-.chip-option{ border:1.5px solid var(--border); background: var(--bg-soft); padding:6px 14px; border-radius:20px; font-size:12.5px; font-weight:600; cursor:pointer; transition: all var(--transition); }
-.chip-option.selected{ border-color: var(--accent-strong); background: var(--accent-tint); color: var(--accent-deep); }
-
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
-@media (max-width: 1080px){
-  .stat-grid{ grid-template-columns: repeat(2,1fr); }
-  .dash-grid{ grid-template-columns: 1fr; }
-  .period-columns{ grid-template-columns: 1fr; }
-  .week-grid{ grid-template-columns: repeat(4,1fr); }
-}
-
-@media (max-width: 880px){
-  .mobile-topbar{
-    display:flex; align-items:center; justify-content:space-between; padding:14px 18px;
-    background: var(--card); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:60;
-  }
-  .mobile-topbar-title{ font-family: var(--font-display); font-weight:700; font-size:17px; }
-  .app-shell{ flex-direction:column; }
-  .sidebar{
-    position:fixed; left:0; top:0; height:100vh; transform: translateX(-100%);
-    transition: transform var(--transition); box-shadow: var(--shadow-lg);
-  }
-  .sidebar.open{ transform: translateX(0); }
-  .sidebar-overlay.open{ display:block; }
-  .main{ padding: 20px 16px 60px; }
-  .week-grid{ grid-template-columns: repeat(2,1fr); }
-  .goals-grid, .studies-grid{ grid-template-columns: 1fr; }
-}
-
-@media (max-width: 560px){
-  .stat-grid{ grid-template-columns: 1fr 1fr; }
-  .page-hero{ flex-direction:column; align-items:flex-start; }
-  .week-grid{ grid-template-columns: 1fr; }
-  .month-grid, .month-weekdays{ grid-template-columns: repeat(7, minmax(0,1fr)); }
-  .month-cell{ min-height:60px; padding:5px; font-size:11px; }
-}
-
-/* ==========================================================================
-   MARCA — Aurela: novos temas de destaque
-   ========================================================================== */
-body[data-accent="beige"]{ --accent:#EFE6DA; --accent-strong:#B79C7C; --accent-deep:#8F7659; }
-body[data-accent="noir"]{ --accent:#3A3A3E; --accent-strong:#1C1C1F; --accent-deep:#000000; }
-body[data-accent="clean"]{ --accent:#ECECEE; --accent-strong:#9098A3; --accent-deep:#6B7280; }
-
-/* ==========================================================================
-   UTILITÁRIOS
-   ========================================================================== */
-.hidden{ display:none !important; }
-
-/* ==========================================================================
-   TELA DE AUTENTICAÇÃO
-   ========================================================================== */
-.auth-screen{
-  min-height:100vh; display:flex; align-items:center; justify-content:center;
-  background: radial-gradient(circle at 20% 20%, var(--accent-tint), var(--bg) 60%);
-  padding: 24px;
-}
-.auth-card{
-  width:100%; max-width:380px; background: var(--card); border:1px solid var(--border);
-  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 36px 30px;
-}
-.auth-brand{ display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:6px; }
-.auth-brand .brand-mark{ font-size:26px; color: var(--accent-deep); }
-.auth-brand .brand-name{ font-family: var(--font-display); font-weight:700; font-size:24px; }
-.auth-tagline{ text-align:center; color: var(--text-soft); font-size:13.5px; margin-bottom:22px; }
-.auth-tabs{ margin-bottom:22px; width:100%; }
-.auth-form{ display:flex; flex-direction:column; gap:10px; }
-.auth-form .field-label{ margin-top:6px; }
-.auth-submit{ margin-top:14px; width:100%; justify-content:center; }
-.auth-link{
-  background:none; border:none; color: var(--accent-deep); font-size:12.5px; font-weight:600;
-  cursor:pointer; align-self:flex-end; padding:2px 0; text-decoration: underline;
-}
-.auth-error{ color: var(--danger); font-size:12.5px; min-height:16px; margin:2px 0 0; text-align:center; }
-
-/* ==========================================================================
-   NOTAS
-   ========================================================================== */
-.notes-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:16px; }
-.note-card{
-  border-radius: var(--radius-md); padding:18px; min-height:150px; display:flex; flex-direction:column; gap:8px;
-  box-shadow: var(--shadow-sm); cursor:pointer; transition: transform var(--transition);
-}
-.note-card:hover{ transform: translateY(-2px); }
-.note-card h4{ font-size:15px; }
-.note-card p{ font-size:13px; color: var(--text-soft); white-space:pre-wrap; overflow:hidden; display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; }
-
-/* ==========================================================================
-   ESTADO VAZIO
-   ========================================================================== */
-.empty-state{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-  padding: 36px 16px; color: var(--text-faint); text-align:center; font-size:13.5px;
-}
-.empty-state .empty-icon{ font-size:26px; opacity:.7; }
-
-/* ==========================================================================
-   LOGOUT
-   ========================================================================== */
-.logout-btn{ color: var(--danger); margin-top:6px; }
-
-/* ==========================================================================
-   COR DE FUNDO PERSONALIZADA
-   ========================================================================== */
-.custom-bg-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.custom-bg-row input[type="color"]{
-  width:52px; height:40px; border-radius:10px; border:1px solid var(--border);
-  padding:2px; cursor:pointer; background:none;
-}
-
-/* ==========================================================================
-   PÁGINA DE APRESENTAÇÃO (antes do login)
-   ========================================================================== */
-.auth-screen{
-  min-height:100vh; display:flex; flex-direction:column;
-  background: radial-gradient(circle at 20% 0%, var(--accent-tint), var(--bg) 55%);
-}
-.landing-topbar{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:18px 28px; border-bottom:1px solid var(--border);
-}
-.landing-brand{ display:flex; align-items:center; gap:8px; }
-.landing-brand .brand-mark{ font-size:22px; color: var(--accent-deep); }
-.landing-brand .brand-name{ font-family: var(--font-display); font-weight:700; font-size:19px; }
-.landing-topbar-actions{ display:flex; gap:10px; }
-
-.landing-hero{
-  flex:1; display:flex; flex-direction:column; align-items:center; text-align:center;
-  padding: 64px 24px 80px; max-width:720px; margin:0 auto;
-}
-.landing-hero-mark{ font-size:40px; color: var(--accent-deep); margin-bottom:10px; }
-.landing-hero h1{ font-family: var(--font-display); font-size:clamp(28px,5vw,42px); font-weight:700; margin-bottom:14px; }
-.landing-hero-sub{ color: var(--text-soft); font-size:16px; max-width:480px; margin-bottom:26px; }
-.landing-hero-cta{ padding:14px 30px; font-size:15px; margin-bottom:56px; }
-
-.landing-features{
-  display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:18px; width:100%;
-}
-.landing-feature-card{
-  background: var(--card); border:1px solid var(--border); border-radius: var(--radius-md);
-  padding:22px 18px; box-shadow: var(--shadow-sm); text-align:left;
-}
-.landing-feature-card span{ font-size:24px; }
-.landing-feature-card h3{ font-size:15px; margin:10px 0 6px; }
-.landing-feature-card p{ font-size:13px; color: var(--text-soft); }
-
-@media (max-width: 640px){
-  .landing-topbar{ padding:14px 16px; }
-  .landing-topbar-actions .btn{ padding:9px 14px; font-size:13px; }
-}
-
-/* ==========================================================================
-   JANELA (MODAL) DE LOGIN / CADASTRO
-   ========================================================================== */
-.auth-modal-backdrop{
-  position:fixed; inset:0; background: rgba(20,14,18,0.45); backdrop-filter: blur(3px);
-  display:flex; align-items:center; justify-content:center; padding:20px; z-index:200;
-  opacity:0; pointer-events:none; transition: opacity var(--transition);
-}
-.auth-modal-backdrop.open{ opacity:1; pointer-events:auto; }
-.auth-modal-backdrop .auth-card{ position:relative; }
-.auth-modal-close{
-  position:absolute; top:14px; right:14px; background:none; border:none; cursor:pointer;
-  font-size:16px; color: var(--text-faint); width:28px; height:28px; border-radius:50%;
-}
-.auth-modal-close:hover{ background: var(--accent-tint); color: var(--text); }
+<script src="api.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
